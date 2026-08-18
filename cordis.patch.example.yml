@@ -1,0 +1,95 @@
+# cordis.patch.example.yml — full annotated configuration for dsh-lark-all.
+# Copy the relevant parts into your profile's cordis.patch.yml (applied after
+# the bundle layer). Replace placeholders with your own values; never commit
+# real App IDs or secrets.
+#
+# The two rows inserted by the bundle (see cordis.patch.yml):
+#   - lark-channel: the Feishu/Lark WebSocket channel bridge
+#   - dsh-ops:      restart recovery notification
+#
+# ── lark-channel ─────────────────────────────────────────────────────────
+- id: lark-channel
+  config:
+    # Feishu app credentials. Prefer env / credential refs over literals:
+    appId: !!js process.env.LARK_APP_ID        # or the literal App ID
+    appSecretRef: LARK_APP_SECRET              # Harness credential reference
+    cwd: !!js process.env.DSH_LARK_CWD ?? process.cwd()
+
+    # International Lark instead of Feishu China:
+    # domain: lark
+
+    # Access policy: open | allowlist | disabled (use allowlist in production)
+    singlePolicy: allowlist
+    singleAllowFrom: [ou_xxxxxxxxxxxxxxxxxxxx]
+    groupPolicy: allowlist
+    groupAllowChats: [oc_xxxxxxxxxxxxxxxxxxxx]
+    groupRequireMention: true
+    respondToMentionAll: false
+
+    # Model input: auto | always | never
+    imageInputMode: auto
+    replyInThread: false
+
+    # Timeouts / limits
+    responseTimeoutMs: 21600000                # per-turn ceiling (6 h)
+    mediaDownloadTimeoutMs: 30000
+    sendTimeoutMs: 30000
+    handshakeTimeoutMs: 15000
+    sendRetries: 2
+    maxReplyChars: 20000
+    maxReplyImages: 4
+
+    # Inbound media: files / voice / video / oversized images / cloud docs
+    inboundFiles: true
+    inboundMedia: true
+    inboundDir: ''                             # empty => <cwd>/.lark-inbox
+    inboundResourceLimitBytes: 104857600       # Feishu IM cap: 100 MB
+    inboundTextPreviewChars: 6000
+
+    # Outbound media: /bot-send-* commands + [lark-*: path] markers
+    outboundMedia: true
+    outboundAllowedDirs: []                    # empty => [cwd]
+    maxOutboundFileBytes: 31457280             # 30 MB
+    maxOutboundAudioBytes: 31457280
+    maxOutboundVideoBytes: 31457280
+    maxOutboundImageBytes: 10485760            # 10 MB
+    driveLargeFiles: true                      # oversized => Drive share link
+    maxDriveFileBytes: 209715200               # Drive upload cap: 200 MB
+    sendFileMarkers: true
+    docxInbound: true                          # read inbound docx shares
+    docxOutbound: true                         # /bot-send-doc + [lark-doc:]
+
+    # Message flow: keep chatQueue:false (default) so task sessions run in
+    # parallel inside one chat.
+    chatQueue: false
+    maxInFlightMessages: 8
+
+    # Emoji reactions
+    progressReaction: true
+    progressEmoji: Typing                      # Typing | THUMBSUP | THINKING | ...
+    doneEmoji: ''                              # e.g. CheckMark; empty = off
+
+    # Parallel task sessions (「任务：」 prefixes + streaming cards)
+    taskSessions: true
+    taskPresets: {}                            # extra prefix => preset map
+    taskDefaultPreset: code                    # bare 「任务：」 preset
+    taskReasoningEffort: max                   # pinned on fresh task sessions
+    reportIdentity: wdsh                       # identity in report prefix
+    taskCounterFile: ''                        # empty => <cwd>/.lark-task-counter.json
+
+    # Process restart via chat message (default command: 「重启进程」)
+    restartCommand: 重启进程
+    restartMarkerFile: ''                      # empty => <cwd>/.dsh-ops-restart-marker.json
+    restartLaunch: dsh web
+    restartLogFile: ''                         # empty => <cwd>/dsh-web.log
+    restartExitDelayMs: 2000
+
+    # systemPrompt: ''                         # optional channel prompt override
+
+# ── dsh-ops (restart recovery notification) ───────────────────────────────
+- id: dsh-ops
+  config:
+    appId: !!js process.env.LARK_APP_ID
+    appSecretRef: LARK_APP_SECRET
+    cwd: !!js process.env.DSH_LARK_CWD ?? process.cwd()
+    # markerFile: ''   # empty => <cwd>/.dsh-ops-restart-marker.json
