@@ -1,0 +1,76 @@
+{
+  "name": "dsh-lark-all",
+  "version": "1.0.0",
+  "description": "Merged Feishu/Lark plugin for DeepSeek Harness: Lark channel bridge (long-connection WebSocket, parallel task sessions with streaming cards, media in/out, cloud docs) + restart recovery notification (ops).",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./ops": {
+      "types": "./ops.d.ts",
+      "default": "./ops.js"
+    }
+  },
+  "files": [
+    "dist",
+    "ops.js",
+    "ops.d.ts",
+    "cordis.patch.yml",
+    "README.md",
+    "THIRD_PARTY_NOTICES.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "build": "node build.mjs && tsc -p tsconfig.json --emitDeclarationOnly --outDir dist",
+    "check": "tsc -p tsconfig.json --noEmit && node build.mjs",
+    "pack": "npm run build && pnpm pack"
+  },
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "ai-agent",
+    "developer-tools",
+    "feishu",
+    "lark",
+    "chatbot"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@deepseek-ai/schemastery": "^3.18.1",
+    "axios": "^1.16.0",
+    "lodash.identity": "^3.0.0",
+    "lodash.merge": "^4.6.2",
+    "lodash.pickby": "^4.6.0",
+    "qs": "^6.14.2",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@larksuiteoapi/node-sdk": "^1.73.0",
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.24.2",
+    "typescript": "^5.6.0"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": ">=4.0.1",
+    "@deepseek-ai/dsh-agent": ">=0.1.0-rc.6",
+    "@deepseek-ai/dsh-agent-default-model": ">=0.1.0-rc.6",
+    "@deepseek-ai/dsh-attachment": ">=0.1.0-rc.6",
+    "@deepseek-ai/dsh-credentials": ">=0.1.0-rc.6",
+    "@deepseek-ai/dsh-llm": ">=0.1.0-rc.6",
+    "@deepseek-ai/dsh-session": ">=0.1.0-rc.6",
+    "@deepseek-ai/dsh-session-persistence": ">=0.1.0-rc.6"
+  },
+  "engines": {
+    "node": ">=22.19"
+  }
+}
