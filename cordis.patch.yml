@@ -1,0 +1,25 @@
+# dsh-lark-all bundle patch — inserted by `pnpm dsh plugin ... add dsh-lark-all`.
+#
+# Insert two rows:
+#   1) lark-channel: the Feishu/Lark WebSocket channel bridge. The App ID is
+#      read from the LARK_APP_ID environment variable and the App Secret from
+#      the Harness credential reference LARK_APP_SECRET (never hard-code
+#      credentials). Override any value in your profile's own cordis.patch.yml
+#      layer with `- id: lark-channel` + `config:`.
+#   2) dsh-ops: restart recovery notification — on boot, if a restart marker
+#      exists (written by the channel before restarting the process), send a
+#      recovery notice to the originating chat and remove the marker.
+- insert:
+    - id: lark-channel
+      name: dsh-lark-all
+      config:
+        appId: !!js process.env.LARK_APP_ID
+        appSecretRef: LARK_APP_SECRET
+        cwd: !!js process.env.DSH_LARK_CWD ?? process.cwd()
+        responseTimeoutMs: 21600000
+    - id: dsh-ops
+      name: dsh-lark-all/ops
+      config:
+        appId: !!js process.env.LARK_APP_ID
+        appSecretRef: LARK_APP_SECRET
+        cwd: !!js process.env.DSH_LARK_CWD ?? process.cwd()
